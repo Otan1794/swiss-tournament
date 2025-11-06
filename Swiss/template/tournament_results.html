@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tournament Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Tournament Results</h1>
+    <p>Total number of rounds: <strong>{{ number_of_rounds }}</strong></p>
+  </header>
+
+  <section class="final-rankings card">
+    <h2>Ranking</h2>
+    <ul class="final-rankings">
+      {% for r in rankings_data %}
+        <li class="ranking-row">
+          <div class="rank-left">
+            <div class="rank-number">{{ r.rank }}</div>
+            <div class="rank-info">
+              <div class="player-name">{{ r.name }}</div>
+              <div class="player-sub">Score: {{ r.score }}</div>
+            </div>
+          </div>
+
+          <div class="rank-stats">
+            <div class="stat">
+              <div class="label">MWP</div>
+              <div class="value">{{ match_win_percentage[r.name] }}</div>
+            </div>
+            <div class="stat">
+              <div class="label">OMW</div>
+              <div class="value">{{ r.omw }}</div>
+            </div>
+            <div class="stat">
+              <div class="label">OOMW</div>
+              <div class="value">{{ r.oomw }}</div>
+            </div>
+            <div class="stat">
+              <div class="label">KTS</div>
+              <div class="value">{{ r.tie }}</div>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Final Scores</h2>
+    <ul class="player-list">
+      {% for name, score in player_scores.items() %}
+        <li>
+          <div>
+            <div class="player-name">{{ name }}</div>
+            <div class="small">Score: {{ score }}</div>
+            <div class="small">MWP: {{ match_win_percentage[name] }}</div>
+            <div class="small">OMW: {{ omw[name] }}</div>
+            <div class="small">OOMW: {{ oomw[name] }}</div>
+            <div class="small">KTS: {{ player_tie_breakers[name] }}</div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Match Results History</h2>
+    <ul>
+      {% for name, results in match_result_history.items() %}
+        <li><strong>{{ name }}</strong>: {{ results }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <form method="post" action="{{ url_for('reset_tournament') }}">
+    <input type="submit" value="Start New Tournament">
+  </form>
+
+</body>
+</html>

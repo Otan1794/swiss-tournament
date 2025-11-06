@@ -1,0 +1,286 @@
+/* Responsive CSS template (mobile-first) */
+:root{
+    --bg:#f7f9fb;
+    --card:#ffffff;
+    --accent:#007bff;
+    --danger:#dc3545;
+    --muted:#6c757d;
+    --text:#222;
+    --radius:8px;
+    --gap:16px;
+    --container-max:1100px;
+    --shadow: 0 2px 8px rgba(20,20,30,0.06);
+    --transition: 0.18s ease;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html,body{
+    height:100%;
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.45;
+    font-size:16px;
+    padding: 20px;
+}
+
+/* Layout container */
+.container{
+    max-width:var(--container-max);
+    margin:0 auto;
+    padding:18px;
+}
+
+/* Header */
+header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:var(--gap);
+    margin-bottom:20px;
+}
+header h1{ margin:0; font-size:1.25rem; }
+header p{ margin:0; color:var(--muted); }
+
+/* Cards */
+.card{
+    background:var(--card);
+    padding:16px;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+}
+
+/* Forms */
+form.inline { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+input[type="text"],
+select {
+    padding:10px 12px;
+    border:1px solid #e1e6ea;
+    border-radius:6px;
+    background:#fff;
+    min-width:0;
+}
+input[type="submit"],
+button {
+    padding:8px 12px;
+    border-radius:6px;
+    border:0;
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    transition:all var(--transition);
+}
+button.danger{ background:var(--danger); }
+button:disabled,
+input[type="submit"]:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* Player list */
+.player-list{ list-style:none; padding:0; margin:0; display:grid; gap:8px; }
+.player-list li{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:10px;
+    border-radius:6px;
+    background:#fbfdff;
+    border:1px solid #eef3f6;
+}
+
+/* Final rankings list — one player per row */
+.final-rankings {
+  list-style: none;
+  padding: 15px;
+  margin: 0;
+  display: block;
+  width: 100%;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #eef3f6;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+
+/* Left: ranking number and player name */
+.rank-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.rank-number {
+  flex: 0 0 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  background: #f1f6ff;
+  color: var(--accent);
+  font-weight: 700;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
+}
+
+.rank-info {
+  min-width: 0;
+}
+
+.player-name {
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-sub {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Right: stats (score, MWP, OMW, OOMW, tie-break) */
+.rank-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;      
+  justify-content: center;
+  min-width: 64px;
+}
+
+.stat .label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.stat .value {
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+/* Tie-break badge */
+.tie-badge {
+  background: #eef6ff;
+  color: var(--accent);
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+#start-btn{
+  display: inline-block;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  border: 0;
+}
+#start-btn:hover,
+#start-btn:focus{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  background: #0062cc;
+  outline: none;
+}
+#start-btn:active{
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.player-name{ font-weight:600; }
+
+#controls{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-top:8px;
+    justify-content:center; /* center the start button horizontally */
+}
+
+/* Pairings & standings */
+.pairings ul, .standings ul { list-style:none; padding:0; margin:0; }
+.pairings li{ padding:8px 0; border-bottom:1px dashed #f0f4f7; }
+
+/* Tables (responsive) */
+.table{ width:100%; border-collapse:collapse; }
+.table th, .table td{ text-align:left; padding:8px; border-bottom:1px solid #f1f5f8; }
+.table-wrap{ overflow:auto; }
+
+/* Small helpers */
+.small{ font-size:.9rem; color:var(--muted); }
+.badge{ background:#eef6ff; color:var(--accent); padding:4px 8px; border-radius:999px; font-weight:600; }
+
+/* Responsive breakpoints */
+@media (min-width:600px){
+    header h1{ font-size:1.5rem; }
+    .player-list{ grid-template-columns: repeat(2, 1fr); }
+    .controls{ justify-content:flex-start; }
+}
+
+@media (min-width:900px){
+    .player-list{ grid-template-columns: repeat(3, 1fr); }
+    .container{ padding:28px; }
+}
+
+@media (max-width: 599px) {
+  .ranking-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .rank-left {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rank-stats {
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .stat { align-items: flex-start; }
+}
+
+/* Desktop: more compact */
+@media (min-width: 900px) {
+  .ranking-row { padding: 14px 18px; }
+  .rank-number { width: 52px; height: 52px; font-size: 1.05rem; }
+  .stat { min-width: 78px; }
+}
+
+/* Utility classes */
+.hide{ display:none !important; }
+.center{ text-align:center; }
+.mt-1{ margin-top:8px; }
+.mb-1{ margin-bottom:8px; }

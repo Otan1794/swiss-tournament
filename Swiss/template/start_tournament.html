@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Round {{ round_number }} Pairings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Round {{ round_number }} Pairings</h1>
+
+  {% if bye_player %}
+    <p><strong>BYE:</strong> {{ bye_player }}</p>
+  {% endif %}
+
+  <form method="post">
+    <ul>
+    {% for p1, p2 in pairings %}
+      <li>
+        {{ p1 }} vs {{ p2 }}:
+        <select name="{{ p1 }}_vs_{{ p2 }}">
+          <option value="1">{{ p1 }} wins</option>
+          <option value="2">{{ p2 }} wins</option>
+          <option value="D">Draw</option>
+        </select>
+      </li>
+    {% endfor %}
+    </ul>
+    <input type="submit" value="Submit Results">
+  </form>
+
+  <form method="post" action="{{ url_for('reset_tournament') }}" style="display:inline;">
+    <input type="submit" value="Restart Tournament">
+  </form>
+
+</body>
+</html>

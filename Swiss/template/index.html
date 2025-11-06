@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Swiss Tournament</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Swiss Tournament Setup</h1>
+    <p>Total number of rounds: <strong>{{ number_of_rounds }}</strong></p>
+  </header>
+
+  <section>
+    <!-- Add player (server POST) -->
+    <form method="post" action="{{ url_for('index') }}">
+      <input type="text" name="player_name" id="player_name" placeholder="Enter player name" required>
+      <input type="submit" value="Add Player">
+    </form>
+
+    <!-- Players list + centered Remove All -->
+    <div class="players-section card" style="margin-top:12px;">
+      <h2>Players ({{ player_list|length }})</h2>
+
+      <ul id="player-list" class="player-list">
+        {% for player in player_list %}
+          <li>
+            <span class="player-name">{{ player }}</span>
+            <form method="post" action="{{ url_for('remove_player') }}" style="display:inline;">
+              <input type="hidden" name="player_name" value="{{ player }}">
+              <button type="submit" class="danger">Remove</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+
+      {% if player_list %}
+        <div class="remove-all-wrap" style="text-align:center; margin-top:12px;">
+          <form method="post" action="{{ url_for('remove_all') }}" style="display:inline;">
+            <button type="submit" class="danger">Remove All</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Controls (Start Tournament kept separate) -->
+    <div id="controls" style="margin-top:12px;">
+      {% if player_list|length > 1 %}
+        <a id="start-btn" href="{{ url_for('start_tournament') }}">Start Tournament</a>
+      {% endif %}
+    </div>
+  </section>
+</body>
+</html>
