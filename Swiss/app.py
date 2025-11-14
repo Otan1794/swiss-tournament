@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import math
 
-from compute import score_update, pairing, final_tie_breaker
+from compute import score_update, pairing_graph, final_tie_breaker
 
 app = Flask(__name__, template_folder='template')
 
@@ -29,7 +29,7 @@ def index():
             match_win_percentage[name] = 0.0
             omw[name] = 0.0
             oomw[name] = 0.0
-            pairing_history[name] = []
+            pairing_history[name] = set() 
             match_result_history[name] = []
             player_tie_breakers[name] = []
             number_of_rounds = math.ceil(math.log2(len(player_list))) if len(player_list) > 1 else 0
@@ -41,25 +41,23 @@ def index():
 
 @app.route('/add_player', methods=['POST'])
 def add_player():
-    global number_of_rounds
-    data = request.get_json()
-    name = data.get('player_name','').strip()
+    global player_list, player_scores, match_win_percentage, omw, oomw, pairing_history, match_result_history, player_tie_breakers, number_of_rounds
+    name = request.form.get('player_name', '').strip()
     if name and name not in player_list:
         player_list.append(name)
         player_scores[name] = 0
         match_win_percentage[name] = 0.0
         omw[name] = 0.0
         oomw[name] = 0.0
-        pairing_history[name] = []
+        pairing_history[name] = set() 
         match_result_history[name] = []
         player_tie_breakers[name] = []
         number_of_rounds = math.ceil(math.log2(len(player_list))) if len(player_list) > 1 else 0
-    return {'player_list': player_list, 'number_of_rounds': number_of_rounds}
+    return {'success': True, 'player_list': player_list, 'count': len(player_list), 'number_of_rounds': number_of_rounds}
 
-# existing remove_player route should remain as POST form action
 @app.route('/remove_player', methods=['POST'])
 def remove_player():
-    global number_of_rounds
+    global player_list, player_scores, match_win_percentage, omw, oomw, pairing_history, match_result_history, player_tie_breakers, number_of_rounds
     name = request.form.get('player_name')
     if name in player_list:
         player_list.remove(name)
@@ -71,7 +69,7 @@ def remove_player():
         match_result_history.pop(name, None)
         player_tie_breakers.pop(name, None)
         number_of_rounds = math.ceil(math.log2(len(player_list))) if len(player_list) > 1 else 0
-    return redirect(url_for('index'))
+    return {'success': True, 'player_list': player_list, 'count': len(player_list), 'number_of_rounds': number_of_rounds}
 
 @app.route('/remove_all', methods=['POST'])
 def remove_all():
@@ -87,7 +85,7 @@ def remove_all():
     player_tie_breakers.clear()
     round_number = 1
     number_of_rounds = 0
-    return redirect(url_for('index'))
+    return {'success': True, 'player_list': player_list, 'count': len(player_list), 'number_of_rounds': number_of_rounds}
 
 @app.route('/start_tournament', methods=['GET', 'POST'])
 def start_tournament():
@@ -103,21 +101,20 @@ def start_tournament():
             results[(p1, p2)] = winner
         #print("Here are the results:", results)
         player_scores, match_win_percentage, round_number, match_result_history = score_update(
-            pairings, player_scores, match_win_percentage, round_number, match_result_history, results
+            pairings, player_scores, match_win_percentage, round_number, match_result_history, results, player_list, 
+            match_win_percentage, omw, oomw, pairing_history
         )
         
         if round_number > number_of_rounds:
             return redirect(url_for('tournament_results'))        
         
-        player_scores, pairing_history, pairings, match_result_history, omw, oomw, bye_player = pairing(
-            round_number, player_list, player_scores, pairing_history, pairings, player_count,
-            match_win_percentage, match_result_history, omw, oomw
+        pairings, bye_player, pairing_history = pairing_graph(
+            round_number, player_list, player_scores, pairing_history, match_result_history
         )
                
     if round_number == 1:
-        player_scores, pairing_history, pairings, match_result_history, omw, oomw, bye_player = pairing(
-            round_number, player_list, player_scores, pairing_history, pairings, player_count,
-            match_win_percentage, match_result_history, omw, oomw
+        pairings, bye_player, pairing_history = pairing_graph(
+            round_number, player_list, player_scores, pairing_history, match_result_history
         )
 
     return render_template('start_tournament.html',
@@ -154,7 +151,8 @@ def tournament_results():
                            number_of_rounds=number_of_rounds,
                            player_tie_breakers=player_tie_breakers,
                            rankings=rankings,
-                           rankings_data=rankings_data)
+                           rankings_data=rankings_data,
+                           pairing_history=pairing_history)
 
 @app.route('/reset_tournament', methods=['POST'])
 def reset_tournament():

@@ -3,7 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Swiss Tournament</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <script>
+    // Provide Flask URLs to the JS file
+    const addPlayerURL = "{{ url_for('add_player') }}";
+    const removePlayerURL = "{{ url_for('remove_player') }}";
+    const removeAllURL = "{{ url_for('remove_all') }}";
+    const startTournamentURL = "{{ url_for('start_tournament') }}";
+  </script>
+
+  <script defer src="{{ url_for('static', filename='js/index.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <header>
@@ -50,5 +60,6 @@
       {% endif %}
     </div>
   </section>
+
 </body>
 </html>

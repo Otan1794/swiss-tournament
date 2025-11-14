@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tournament Results</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <header>
@@ -26,6 +26,10 @@
           </div>
 
           <div class="rank-stats">
+            <div class="stat">
+              <div class="label">Standing</div>
+              <div class="value">{{ (r.score / 3) | int }} - {{ ((r.score / 3) - number_of_rounds) | abs | int }}</div>
+            </div>            
             <div class="stat">
               <div class="label">MWP</div>
               <div class="value">{{ match_win_percentage[r.name] }}</div>
@@ -71,6 +75,15 @@
     <ul>
       {% for name, results in match_result_history.items() %}
         <li><strong>{{ name }}</strong>: {{ results }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Pairing History</h2>
+    <ul>
+      {% for name, pairings in pairing_history.items() %}
+        <li><strong>{{ name }}</strong>: {{ pairings }}</li>
       {% endfor %}
     </ul>
   </section>
