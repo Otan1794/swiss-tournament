@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from flask_session import Session
 import math
 
 from compute import score_update, pairing_graph, final_tie_breaker
@@ -7,9 +6,6 @@ from compute import score_update, pairing_graph, final_tie_breaker
 app = Flask(__name__, template_folder='template')
 
 app.secret_key = "your_secret_key"
-
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
 def init_session():
     session.setdefault("player_list", [])
