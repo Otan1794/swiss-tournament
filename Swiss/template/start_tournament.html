@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Round {{ round_number }} Pairings</title>
+  <script defer src="{{ url_for('static', filename='js/start_tournament.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -27,12 +28,12 @@
     {% endfor %}
     </ul>
     </div>
-    <input type="submit" value="Submit Results">
+    <input type="submit" value="Submit Results" class="btn-action">
   </form>
 
-  <form method="post" action="{{ url_for('reset_tournament') }}" style="display:inline;">
-    <input type="submit" value="Restart Tournament">
-  </form>
+<form id="restart-form" method="post" action="{{ url_for('reset_tournament') }}" style="display:inline;">
+    <input type="submit" value="Restart Tournament" class="btn-action danger">
+</form>
 
 </body>
 </html>

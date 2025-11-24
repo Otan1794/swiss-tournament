@@ -1,7 +1,7 @@
 import networkx as nx
 import random
 
-def pairing_graph(round_number, player_list, player_scores, pairing_history, match_result_history):
+def pairing_graph(player_list, player_scores, pairing_history, match_result_history):
     """
     Returns pairings and bye player using NetworkX matching.
     - pairing_history: dict of sets {player: {previous_opponents}}
