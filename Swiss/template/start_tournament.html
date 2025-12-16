@@ -14,23 +14,69 @@
     <p><strong>BYE:</strong> {{ bye_player }}</p>
   {% endif %}
 
-  <form method="post">
-    <div class="pairings">
-    <ul>
-    {% for p1, p2 in pairings %}
-      <li>
-        <strong>Table {{ loop.index }}: </strong>{{ p1 }} vs {{ p2 }}
-        <select name="{{ p1 }}_vs_{{ p2 }}">
-          <option value="1">{{ p1 }} wins</option>
-          <option value="2">{{ p2 }} wins</option>
-          <option value="D">Draw</option>
-        </select>
-      </li>
-    {% endfor %}
-    </ul>
-    </div>
-    <input type="submit" value="Submit Results" class="btn-action">
-  </form>
+  <div class="tournament-layout">
+    <form method="post">
+      <div class="pairings">
+      <ul>
+      {% for p1, p2 in pairings %}
+        <li>
+          <strong>Table {{ loop.index }}: </strong>{{ p1 }} vs {{ p2 }}
+          <select name="{{ p1 }}_vs_{{ p2 }}">
+            <option value="1">{{ p1 }} wins</option>
+            <option value="2">{{ p2 }} wins</option>
+            <option value="D">Draw</option>
+          </select>
+        </li>
+      {% endfor %}
+      </ul>
+      <input type="submit" value="Submit Results" class="btn-action">
+      </div>
+
+    </form>
+
+    <section class="final-rankings card">
+      <h2>Standings</h2>
+      <ul class="final-rankings">
+        {% for r in rankings_data %}
+          <li class="ranking-row">
+            <div class="rank-left">
+              <div class="rank-number">{{ r.rank }}</div>
+              <div class="rank-info">
+                <div class="player-name">{{ r.name }}</div>
+                <div class="player-sub">Score: {{ r.score }}</div>
+              </div>
+            </div>
+
+            <div class="rank-stats">
+              <div class="stat">
+                <div class="label">Standing</div>
+                <div class="value">  {% set wins = (r.score / 3) | int %}
+                                      {% set losses = (round_number - 1 - wins) | int %}
+                                      {{ wins }} - {{ [0, (round_number - 1 - wins)] | max | int }}
+                </div>
+              </div>            
+              <div class="stat">
+                <div class="label">MWP</div>
+                <div class="value">{{ match_win_percentage[r.name] }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">OMW</div>
+                <div class="value">{{ r.omw }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">OOMW</div>
+                <div class="value">{{ r.oomw }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">KTS</div>
+                <div class="value">{{ r.tie }}</div>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
 
 <form id="restart-form" method="post" action="{{ url_for('reset_tournament') }}" style="display:inline;">
     <input type="submit" value="Restart Tournament" class="btn-action danger">

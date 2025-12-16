@@ -68,19 +68,16 @@ function updatePlayerList(data) {
     }
     
     if (data.count > 0) {
-    removeAllWrap.innerHTML = `
-        <form method="post" style="display:inline;">
-        <button type="submit" class="danger">Remove All</button>
-        </form>
-    `;
-    removeAllWrap.querySelector('form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const res = await fetch(removeAllURL, { method: 'POST' });
-        const data = await res.json();
-        if (data.success) updatePlayerList(data);
-    });
+        removeAllWrap.innerHTML = `
+            <button id="remove-all-btn" class="danger">Remove All</button>
+        `;
+        removeAllWrap.querySelector('#remove-all-btn').addEventListener('click', async () => {
+            const res = await fetch(removeAllURL, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) updatePlayerList(data);
+        });
     } else {
-    removeAllWrap.innerHTML = '';
+        removeAllWrap.innerHTML = '';
     }
     
     const controls = document.querySelector('#controls');

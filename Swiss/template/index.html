@@ -47,9 +47,7 @@
 
       {% if player_list %}
         <div class="remove-all-wrap" style="text-align:center; margin-top:12px;">
-          <form method="post" action="{{ url_for('remove_all') }}" style="display:inline;">
-            <button type="submit" class="danger">Remove All</button>
-          </form>
+          <button id="remove-all-btn" class="danger">Remove All</button>
         </div>
       {% endif %}
     </div>

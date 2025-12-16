@@ -19,6 +19,7 @@ def init_session():
     session.setdefault("player_tie_breakers", {})
     session.setdefault("round_number", 1)
     session.setdefault("number_of_rounds", 0)
+    session.setdefault("rounds", {}) 
 
 @app.route('/', methods=['GET'])
 def index():
@@ -94,6 +95,8 @@ def start_tournament():
     match_result_history = session["match_result_history"]
     round_number = session["round_number"]
     number_of_rounds = session["number_of_rounds"]
+    
+    results = {}
 
     # Convert pairing_history list→set
     pairing_history = {k: set(v) for k, v in session["pairing_history"].items()}
@@ -104,11 +107,12 @@ def start_tournament():
 
     if request.method == 'POST':
         # Process results from the form
-        results = {}
+        
         for p1, p2 in pairings:
             winner = request.form.get(f"{p1}_vs_{p2}")
             results[(p1, p2)] = winner
-        #print("Here are the results:", results)
+        # print("Here are the results:", results)
+        # print("Here are the pairings:", pairings)
         player_scores, match_win_percentage, round_number, match_result_history = score_update(
             pairings, player_scores, match_win_percentage, round_number, match_result_history, results, player_list, 
             match_win_percentage, omw, oomw, pairing_history
@@ -130,6 +134,16 @@ def start_tournament():
         session["pairings"] = pairings
         session["bye_player"] = bye_player
         
+        safe_results = {f"{p1}__vs__{p2}": w for (p1, p2), w in results.items()}
+        
+        session["rounds"][str(round_number)] = {
+            "pairings": pairings,
+            "bye_player": bye_player,
+            "prev_results": safe_results
+        }
+        
+        print("Session rounds data:", session["rounds"])
+        
         # Convert set→list for session
         session["pairing_history"] = {k: list(v) for k, v in pairing_history.items()}
         
@@ -142,13 +156,53 @@ def start_tournament():
         
         session["pairings"] = pairings
         session["bye_player"] = bye_player
+        
+        safe_results = {f"{p1}__vs__{p2}": w for (p1, p2), w in results.items()}
+        
+        session["rounds"][str(round_number)] = {
+            "pairings": pairings,
+            "bye_player": bye_player,
+            "prev_results": safe_results
+        }
+
         session["pairing_history"] = {k: list(v) for k, v in pairing_history.items()}
         session.modified = True
+
+    pairing_history = {k: set(v) for k, v in session["pairing_history"].items()}
+    
+    player_tie_breakers = session.get("player_tie_breakers", {})
+    
+    player_tie_breakers = final_tie_breaker(player_list, player_scores, omw, oomw, player_tie_breakers, match_result_history)
+    rankings = sorted(player_list, key=lambda x: (-player_tie_breakers[x], x))
+    
+    rankings_data = []
+    for rank, name in enumerate(rankings, start=1):
+        entry = {
+            'rank': rank,
+            'name': name,
+            'score': player_scores.get(name, 0),
+            'omw': omw.get(name, 0),
+            'oomw': oomw.get(name, 0),
+            'tie': player_tie_breakers.get(name, 0)
+        }
+        rankings_data.append(entry)
+        print(f"{rank}. {name} (Score: {entry['score']}, OMW: {entry['omw']}, OOMW: {entry['oomw']}, tie-breaker: {entry['tie']})")
 
     return render_template('start_tournament.html',
                            round_number=session["round_number"],
                            pairings=session["pairings"],
-                           bye_player=session.get("bye_player"))
+                           bye_player=session.get("bye_player"),
+                           prev_round_data=session["rounds"],
+                           player_scores=player_scores,
+                           match_result_history=match_result_history,
+                           match_win_percentage=match_win_percentage,
+                           omw=omw,
+                           oomw=oomw,
+                           number_of_rounds=number_of_rounds,
+                           player_tie_breakers=player_tie_breakers,
+                           rankings=rankings,
+                           rankings_data=rankings_data,
+                           pairing_history=pairing_history)
     
 @app.route('/tournament_results', methods=['GET', 'POST'])
 def tournament_results():

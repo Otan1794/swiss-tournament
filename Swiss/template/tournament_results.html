@@ -53,24 +53,6 @@
   </section>
 
   <section class="card">
-    <h2>Final Scores</h2>
-    <ul class="player-list">
-      {% for name, score in player_scores.items() %}
-        <li>
-          <div>
-            <div class="player-name">{{ name }}</div>
-            <div class="small">Score: {{ score }}</div>
-            <div class="small">MWP: {{ match_win_percentage[name] }}</div>
-            <div class="small">OMW: {{ omw[name] }}</div>
-            <div class="small">OOMW: {{ oomw[name] }}</div>
-            <div class="small">KTS: {{ player_tie_breakers[name] }}</div>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
-
-  <section class="card">
     <h2>Match Results History</h2>
     <ul>
       {% for name, results in match_result_history.items() %}
