@@ -4,10 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Round {{ round_number }} Pairings</title>
+
+  <!-- <script>
+    const timerDuration = {{ timer_duration }};
+  </script> -->
+
   <script defer src="{{ url_for('static', filename='js/start_tournament.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+  <!-- Timer data for JavaScript -->
+  <div id="timer-data" 
+       data-duration="{{ timer_duration }}" 
+       data-start="{{ timer_start | tojson }}" 
+       data-paused="{{ timer_paused | tojson }}"
+       style="display: none;">
+  </div>
+
+    <!-- Timer Section -->
+  <div class="timer-section card">
+    <h2>Round Timer</h2>
+    <div class="timer-display">
+      <div id="timer">00:00</div>
+      <div class="timer-controls">
+        <form id="set-duration-form" style="display: inline;">
+          <label for="duration">Duration (minutes):</label>
+          <input type="number" id="duration" name="duration" min="1" max="120" value="{{ timer_duration // 60 }}">
+          <button type="submit">Set</button>
+        </form>
+        <button id="start-timer" {% if not timer_paused %}disabled{% endif %}>Start</button>
+        <button id="pause-timer" {% if timer_paused %}disabled{% endif %}>Pause</button>
+        <button id="reset-timer">Reset</button>
+      </div>
+    </div>
+  </div>
   <h1>Round {{ round_number }} Pairings</h1>
 
   {% if bye_player %}

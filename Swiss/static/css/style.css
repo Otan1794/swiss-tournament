@@ -326,3 +326,38 @@ input[type="submit"].danger {
 .center{ text-align:center; }
 .mt-1{ margin-top:8px; }
 .mb-1{ margin-bottom:8px; }
+
+/* Timer styles */
+.timer-section {
+    margin-bottom: 20px;
+}
+
+.timer-display {
+    text-align: center;
+}
+
+#timer {
+    font-size: 3rem;
+    font-weight: bold;
+    font-family: monospace;
+    margin: 20px 0;
+    color: var(--text);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.timer-controls form {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.timer-controls input[type="number"] {
+    width: 80px;
+}

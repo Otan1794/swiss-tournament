@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import math
+import time
 
 from compute import score_update, pairing_graph, final_tie_breaker
 
@@ -20,6 +21,11 @@ def init_session():
     session.setdefault("round_number", 1)
     session.setdefault("number_of_rounds", 0)
     session.setdefault("rounds", {}) 
+    # Timer related session variables
+    session.setdefault("timer_duration", 3000)  
+    session.setdefault("timer_start", None)
+    session.setdefault("timer_paused", True)
+    session.setdefault("timer_remaining_paused", None)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -107,7 +113,8 @@ def start_tournament():
 
     if request.method == 'POST':
         # Process results from the form
-        
+        session["timer_start"] = None
+        session["timer_paused"] = True
         for p1, p2 in pairings:
             winner = request.form.get(f"{p1}_vs_{p2}")
             results[(p1, p2)] = winner
@@ -150,6 +157,10 @@ def start_tournament():
         session.modified = True
                
     if round_number == 1 and not session.get("pairings"):
+        
+        session["timer_start"] = None
+        session["timer_paused"] = True
+        
         pairings, bye_player, pairing_history = pairing_graph(
             player_list, player_scores, pairing_history, match_result_history
         )
@@ -202,7 +213,10 @@ def start_tournament():
                            player_tie_breakers=player_tie_breakers,
                            rankings=rankings,
                            rankings_data=rankings_data,
-                           pairing_history=pairing_history)
+                           pairing_history=pairing_history,
+                           timer_duration=session["timer_duration"],
+                           timer_start=session["timer_start"],
+                           timer_paused=session["timer_paused"])
     
 @app.route('/tournament_results', methods=['GET', 'POST'])
 def tournament_results():
@@ -265,6 +279,72 @@ def reset_tournament():
     session["round_number"] = 1
     session["number_of_rounds"] = 0
     return redirect(url_for('index'))
+
+@app.route('/set_timer_duration', methods=['POST'])
+def set_timer_duration():
+    init_session()
+    duration = request.form.get('duration', type=int)
+    if duration and duration > 0:
+        session["timer_duration"] = duration
+        session.modified = True
+    return {'success': True, 'duration': session["timer_duration"]}
+
+@app.route('/start_timer', methods=['POST'])
+def start_timer():
+    init_session()
+    if session["timer_start"] is None:
+        session["timer_start"] = time.time()
+    elif session["timer_remaining_paused"] is not None:
+        # Adjust start time based on remaining time when resuming
+        session["timer_start"] = time.time() - (session["timer_duration"] - session["timer_remaining_paused"])
+        session["timer_remaining_paused"] = None
+    session["timer_paused"] = False
+    session.modified = True
+    return {'success': True, 'start_time': session["timer_start"], 'paused': session["timer_paused"]}
+
+@app.route('/pause_timer', methods=['POST'])
+def pause_timer():
+    init_session()
+    if session["timer_start"] and not session["timer_paused"]:
+        # Calculate remaining time at pause
+        current_time = time.time()
+        elapsed = current_time - session["timer_start"]
+        session["timer_remaining_paused"] = max(0, session["timer_duration"] - elapsed)
+    session["timer_paused"] = True
+    session.modified = True
+    return {'success': True, 'paused': session["timer_paused"]}
+
+@app.route('/reset_timer', methods=['POST'])
+def reset_timer():
+    init_session()
+    session["timer_start"] = None
+    session["timer_paused"] = True
+    session["timer_remaining_paused"] = None  # Clear paused remaining time
+    session.modified = True
+    return {'success': True, 'start_time': session["timer_start"], 'paused': session["timer_paused"]}
+
+@app.route('/get_timer_state', methods=['GET'])
+def get_timer_state():
+    init_session()
+    current_time = time.time()
+    
+    if session["timer_paused"] and session["timer_remaining_paused"] is not None:
+        # When paused, show the stored remaining time
+        remaining = session["timer_remaining_paused"]
+    elif session["timer_start"] and not session["timer_paused"]:
+        # When running, calculate remaining time
+        elapsed = current_time - session["timer_start"]
+        remaining = max(0, session["timer_duration"] - elapsed)
+    else:
+        # When not started or reset, show full duration
+        remaining = session["timer_duration"]
+    
+    return {
+        'remaining': int(remaining),
+        'duration': session["timer_duration"],
+        'paused': session["timer_paused"],
+        'started': session["timer_start"] is not None
+    }
 
 if __name__ == '__main__':
     app.run(debug=True)
