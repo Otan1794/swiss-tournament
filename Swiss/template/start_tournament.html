@@ -45,17 +45,21 @@
   {% endif %}
 
   <div class="tournament-layout">
-    <form method="post">
+    <form id="submit-results-form" method="post">
       <div class="pairings">
       <ul>
       {% for p1, p2 in pairings %}
         <li>
           <strong>Table {{ loop.index }}: </strong>{{ p1 }} vs {{ p2 }}
-          <select name="{{ p1 }}_vs_{{ p2 }}">
+          <select name="{{ p1 }}_vs_{{ p2 }}" id="select-{{ p1 }}-{{ p2 }}">
             <option value="1">{{ p1 }} wins</option>
             <option value="2">{{ p2 }} wins</option>
             <option value="D">Draw</option>
           </select>
+          <label class="toggle">
+            <input type="checkbox" id="lock-{{ p1 }}-{{ p2 }}">
+            <span class="slider"></span>
+          </label>
         </li>
       {% endfor %}
       </ul>

@@ -22,7 +22,7 @@ def init_session():
     session.setdefault("number_of_rounds", 0)
     session.setdefault("rounds", {}) 
     # Timer related session variables
-    session.setdefault("timer_duration", 3000)  
+    session.setdefault("timer_duration", 6000)  
     session.setdefault("timer_start", None)
     session.setdefault("timer_paused", True)
     session.setdefault("timer_remaining_paused", None)
@@ -118,7 +118,7 @@ def start_tournament():
         for p1, p2 in pairings:
             winner = request.form.get(f"{p1}_vs_{p2}")
             results[(p1, p2)] = winner
-        # print("Here are the results:", results)
+        print("Here are the results:", results)
         # print("Here are the pairings:", pairings)
         player_scores, match_win_percentage, round_number, match_result_history = score_update(
             pairings, player_scores, match_win_percentage, round_number, match_result_history, results, player_list, 

@@ -1,4 +1,5 @@
 const restartForm = document.getElementById('restart-form');
+const submitResultsForm = document.getElementById('submit-results-form');
 
 if (restartForm) {
     restartForm.addEventListener('submit', function (e) {
@@ -10,6 +11,30 @@ if (restartForm) {
     });
 }
 
+if (submitResultsForm) {
+    submitResultsForm.addEventListener('submit', function (e) {
+        const confirmed = confirm("Are you sure you want to submit the round results? This will advance to the next round.");
+
+        if (!confirmed) {
+            e.preventDefault(); // stop submit
+            return;
+        }
+
+        // Temporarily re-enable all disabled selects so their values are submitted
+        const disabledSelects = submitResultsForm.querySelectorAll('select:disabled');
+        disabledSelects.forEach(select => {
+            select.disabled = false;
+        });
+
+        // The form will submit normally, then re-disable the selects after a short delay
+        setTimeout(() => {
+            disabledSelects.forEach(select => {
+                select.disabled = true;
+            });
+        }, 100);
+    });
+}
+
 // Timer functionality - AJAX polling version
 let timerInterval;
 let lastRemaining;
@@ -17,7 +42,7 @@ let durationInputModified = false;
 
 function getTimerData() {
     const timerData = document.getElementById('timer-data');
-    if (!timerData) return { duration: 300, start: null, paused: true };
+    if (!timerData) return { duration: 6000, start: null, paused: true };
     
     return {
         duration: parseInt(timerData.dataset.duration),
@@ -137,8 +162,47 @@ document.getElementById('duration').addEventListener('input', function() {
     durationInputModified = true;
 });
 
+// Toggle switch functionality for locking/unlocking results
+function initializeToggles() {
+    // Get all toggle checkboxes
+    const toggles = document.querySelectorAll('input[type="checkbox"][id^="lock-"]');
+    const submitButton = document.querySelector('input[type="submit"][value="Submit Results"]');
+    
+    function updateSubmitButton() {
+        const allLocked = Array.from(toggles).every(toggle => toggle.checked);
+        if (submitButton) {
+            submitButton.disabled = !allLocked;
+            submitButton.style.opacity = allLocked ? '1' : '0.6';
+            submitButton.style.cursor = allLocked ? 'pointer' : 'not-allowed';
+        }
+    }
+    
+    toggles.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            // Extract player names from toggle ID (format: lock-player1-player2)
+            const toggleId = this.id;
+            const players = toggleId.replace('lock-', '').split('-');
+            const selectId = `select-${players[0]}-${players[1]}`;
+            const selectElement = document.getElementById(selectId);
+            
+            if (selectElement) {
+                selectElement.disabled = this.checked;
+                // Add visual feedback
+                selectElement.style.opacity = this.checked ? '0.6' : '1';
+            }
+            
+            // Update submit button state
+            updateSubmitButton();
+        });
+    });
+    
+    // Initial check
+    updateSubmitButton();
+}
+
 // Initialize timer polling
 document.addEventListener('DOMContentLoaded', function() {
     pollTimer(); // Initial poll
     timerInterval = setInterval(pollTimer, 1000); // Poll every second
+    initializeToggles(); // Initialize toggle switches
 });
