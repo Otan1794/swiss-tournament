@@ -20,9 +20,11 @@ def init_session():
     session.setdefault("player_tie_breakers", {})
     session.setdefault("round_number", 1)
     session.setdefault("number_of_rounds", 0)
-    session.setdefault("rounds", {}) 
+    session.setdefault("rounds", {})
+    session.setdefault("submitted_rounds", [])
+    
     # Timer related session variables
-    session.setdefault("timer_duration", 6000)  
+    session.setdefault("timer_duration", 3000)  
     session.setdefault("timer_start", None)
     session.setdefault("timer_paused", True)
     session.setdefault("timer_remaining_paused", None)
@@ -112,6 +114,14 @@ def start_tournament():
     bye_player = session.get("bye_player")  
 
     if request.method == 'POST':
+        # Check if results have already been submitted for this round
+        if session.get("round_number") in session.get("submitted_rounds", []):
+            # Results already submitted, redirect to next round or results page
+            if round_number > number_of_rounds:
+                return redirect(url_for('tournament_results'))
+            else:
+                return redirect(url_for('start_tournament'))
+        
         # Process results from the form
         session["timer_start"] = None
         session["timer_paused"] = True
@@ -131,7 +141,13 @@ def start_tournament():
         session["round_number"] = round_number
         session["match_result_history"] = match_result_history
         
+        # Mark this round as submitted
+        if "submitted_rounds" not in session:
+            session["submitted_rounds"] = []
+        session["submitted_rounds"].append(round_number - 1)
+        
         if round_number > number_of_rounds:
+            session.modified = True
             return redirect(url_for('tournament_results'))        
         
         pairings, bye_player, pairing_history = pairing_graph(
@@ -155,6 +171,8 @@ def start_tournament():
         session["pairing_history"] = {k: list(v) for k, v in pairing_history.items()}
         
         session.modified = True
+        # Post-Redirect-Get pattern: redirect instead of rendering directly
+        return redirect(url_for('start_tournament'))
                
     if round_number == 1 and not session.get("pairings"):
         
@@ -276,6 +294,7 @@ def reset_tournament():
     session["pairing_history"].clear()
     session["match_result_history"].clear()
     session["player_tie_breakers"].clear()
+    session["submitted_rounds"].clear()
     session["round_number"] = 1
     session["number_of_rounds"] = 0
     return redirect(url_for('index'))
